@@ -1,891 +1,207 @@
-<html lang="ja"><head>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRIUMPH Team Board</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --gold: #c8a84b;
-  --gold-light: #f0e4b8;
-  --gold-dark: #8a6e28;
-  --bg: #f7f5f0;
-  --surface: #ffffff;
-  --border: #e8e3d9;
-  --text: #1a1714;
-  --muted: #6b6459;
-  --subtle: #a09589;
-  --green: #3d7a4a;
-  --green-bg: #eaf3ec;
-  --yellow: #8a6e00;
-  --yellow-bg: #fef9e6;
-  --orange: #8a4500;
-  --orange-bg: #fef0dc;
-  --red: #8a1f1f;
-  --red-bg: #fceaea;
-  --radius: 12px;
-  --radius-sm: 8px;
+  --gold:#c8a84b;--gold-light:#f0e4b8;--gold-dark:#8a6e28;
+  --bg:#f7f5f0;--surface:#ffffff;--border:#e8e3d9;
+  --text:#1a1714;--muted:#6b6459;--subtle:#a09589;
+  --radius:12px;--radius-sm:8px;
 }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+#loadingScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
+#loginScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;text-align:center;max-width:340px;width:100%}
+.login-logo{font-size:22px;font-weight:600;letter-spacing:.08em;margin-bottom:8px}
+.login-logo span{color:var(--gold)}
+.login-sub{font-size:13px;color:var(--subtle);margin-bottom:2rem}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:500;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .15s}
+.google-btn:hover{background:var(--bg);border-color:var(--gold)}
 
-/* ── ヘッダー ── */
-.header {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text);
-}
-.logo span { color: var(--gold); }
-.header-right { display: flex; align-items: center; gap: 12px; }
-.sync-badge {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px;
-  background: var(--green-bg);
-  color: var(--green);
-  padding: 4px 10px;
-  border-radius: 20px;
-  border: 1px solid #b8dcc0;
-}
-.btn {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 7px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.btn:hover { background: var(--bg); border-color: var(--gold); }
-.btn-gold {
-  background: var(--gold);
-  color: #fff;
-  border-color: var(--gold);
-}
-.btn-gold:hover { background: var(--gold-dark); border-color: var(--gold-dark); }
-.btn-danger { color: var(--red); border-color: #f0c0c0; }
-.btn-danger:hover { background: var(--red-bg); }
+#mainApp{display:none}
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+.logo{font-size:18px;font-weight:600;letter-spacing:.08em}
+.logo span{color:var(--gold)}
+.header-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sync-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#70ad47;animation:pulse 2s infinite}
+.cal-badge{font-size:11px;background:#e8f1fb;color:#0c447c;padding:3px 10px;border-radius:20px;border:1px solid #b5d4f4}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.user-chip{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold-light);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--gold-dark);overflow:hidden}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:7px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--bg);border-color:var(--gold)}
+.btn-gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold-dark)}
+.btn-danger{color:#8a1f1f;border-color:#f0c0c0}
+.btn-danger:hover{background:#fceaea}
+.btn-sm{font-size:11px;padding:4px 12px}
 
-/* ── メインレイアウト ── */
-.main { display: flex; min-height: calc(100vh - 60px); }
-.content { flex: 1; padding: 2rem; max-width: 1200px; }
+.content{padding:2rem;max-width:1300px}
+.summary-row{display:flex;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.summary-pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid transparent}
+.pill-dot{width:8px;height:8px;border-radius:50%}
+.date-str{font-family:'DM Mono',monospace;font-size:12px;color:var(--subtle)}
 
-/* ── サマリー ── */
-.summary-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-}
-.summary-pills { display: flex; gap: 10px; flex-wrap: wrap; }
-.pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 1px solid transparent;
-}
-.pill-dot { width: 8px; height: 8px; border-radius: 50%; }
-.date-str { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--subtle); }
-
-/* ── グリッド ── */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
-}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 
 /* ── カード ── */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  position: relative;
-}
-.card:hover { border-color: var(--gold-light); box-shadow: 0 2px 12px rgba(200,168,75,0.08); }
-.card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.avatar {
-  width: 42px; height: 42px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 600;
-  flex-shrink: 0;
-}
-.card-name { font-size: 14px; font-weight: 600; line-height: 1.3; }
-.card-role { font-size: 11px; color: var(--subtle); margin-top: 2px; }
-.meter-head {
-  display: flex; justify-content: space-between;
-  align-items: center; margin-bottom: 5px;
-}
-.meter-label { font-size: 11px; color: var(--muted); }
-.meter-pct { font-size: 14px; font-weight: 600; }
-.track {
-  height: 6px; background: var(--bg);
-  border-radius: 3px; overflow: hidden; margin-bottom: 10px;
-  border: 1px solid var(--border);
-}
-.bar { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
-.status-chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 500;
-  padding: 3px 9px; border-radius: 20px;
-  margin-bottom: 10px;
-}
-.chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;transition:border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--gold-light);box-shadow:0 2px 12px rgba(200,168,75,.08)}
+.card.is-mine{border-color:#d4aa00}
 
-.events-block { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 2px; }
-.ev-row {
-  display: flex; align-items: flex-start; gap: 6px;
-  padding: 3px 0; font-size: 11px;
-}
-.ev-time { font-family: 'DM Mono', monospace; color: var(--subtle); white-space: nowrap; min-width: 72px; font-size: 10px; }
-.ev-title { color: var(--text); font-weight: 500; line-height: 1.4; }
-.no-ev { font-size: 11px; color: var(--subtle); padding: 4px 0; }
+/* ── 顔アイコン ── */
+.face-wrap{position:relative;width:64px;height:64px;margin:0 auto 10px;flex-shrink:0}
+.face-svg{width:64px;height:64px}
+.steam{position:absolute;top:-14px;left:50%;transform:translateX(-50%);display:flex;gap:4px;opacity:0;transition:opacity .5s}
+.steam.show{opacity:1}
+.steam-line{width:3px;border-radius:2px;animation:steamUp 1.2s ease-in-out infinite}
+.steam-line:nth-child(1){height:10px;animation-delay:0s;background:#ff8a65}
+.steam-line:nth-child(2){height:14px;animation-delay:.2s;background:#ff7043}
+.steam-line:nth-child(3){height:10px;animation-delay:.4s;background:#ff8a65}
+@keyframes steamUp{0%{transform:translateY(0) scaleX(1);opacity:.8}100%{transform:translateY(-12px) scaleX(1.5);opacity:0}}
+.sweat{position:absolute;top:12px;right:4px;font-size:14px;opacity:0;transition:opacity .5s;animation:sweatDrop 1.5s ease-in-out infinite}
+.sweat.show{opacity:1}
+@keyframes sweatDrop{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+.mine-ring{position:absolute;inset:0;border-radius:50%;border:2px solid var(--gold);animation:ringPulse 2s infinite}
+@keyframes ringPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.8;transform:scale(1.05)}}
 
-.adj-row {
-  display: flex; align-items: center; gap: 8px;
-  margin-top: 10px; padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-.adj-label { font-size: 10px; color: var(--subtle); white-space: nowrap; }
-.adj-row input[type=range] {
-  flex: 1; height: 4px; accent-color: var(--gold);
-  cursor: pointer;
-}
-.adj-val { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--muted); min-width: 26px; text-align: right; }
+.card-top{display:flex;flex-direction:column;align-items:center;margin-bottom:12px}
+.card-name{font-size:14px;font-weight:600;text-align:center;line-height:1.3}
+.card-role{font-size:11px;color:var(--subtle);text-align:center;margin-top:2px}
+.mine-badge{font-size:10px;background:var(--gold-light);color:var(--gold-dark);padding:1px 6px;border-radius:10px;margin-top:3px;display:inline-block}
 
-.comment-area { margin-top: 8px; }
-.comment-disp {
-  font-size: 11px; color: var(--muted);
-  cursor: pointer; padding: 2px 0; min-height: 16px;
-  line-height: 1.5;
-}
-.comment-disp:hover { color: var(--text); }
-.comment-disp.empty { color: var(--subtle); font-style: italic; }
-.comment-inp {
-  width: 100%; font-size: 11px;
-  border: 1px solid var(--border); border-radius: 6px;
-  padding: 5px 8px; background: var(--bg);
-  color: var(--text); resize: none; font-family: 'DM Sans', sans-serif;
-  margin-top: 4px;
-}
-.comment-inp:focus { outline: none; border-color: var(--gold); }
-.save-sm {
-  font-size: 10px; padding: 2px 10px; margin-top: 4px;
-  border-radius: 5px; border: 1px solid var(--border);
-  background: var(--bg); cursor: pointer; color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-}
-.save-sm:hover { border-color: var(--gold); color: var(--gold-dark); }
+.meter-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.meter-label{font-size:11px;color:var(--muted)}
+.meter-pct{font-size:14px;font-weight:600}
+.track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+.bar{height:100%;border-radius:3px;transition:width .5s ease}
+.status-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;margin-bottom:8px}
+.chip-dot{width:6px;height:6px;border-radius:50%}
 
-/* ── 管理パネル（サイドドロワー） ── */
-.overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.3);
-  z-index: 200;
-}
-.overlay.open { display: block; }
-.drawer {
-  position: fixed; top: 0; right: -480px; bottom: 0;
-  width: 460px; background: var(--surface);
-  border-left: 1px solid var(--border);
-  z-index: 201;
-  transition: right 0.3s ease;
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.drawer.open { right: 0; }
-.drawer-head {
-  padding: 1.2rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-}
-.drawer-title { font-size: 16px; font-weight: 600; }
-.close-btn {
-  width: 32px; height: 32px; border-radius: 8px;
-  border: 1px solid var(--border); background: none;
-  cursor: pointer; font-size: 18px; color: var(--muted);
-  display: flex; align-items: center; justify-content: center;
-}
-.close-btn:hover { background: var(--bg); }
-.drawer-body { flex: 1; overflow-y: auto; padding: 1.5rem; }
-.drawer-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border);
-  display: flex; gap: 10px;
-  flex-shrink: 0;
-}
+.events-block{border-top:1px solid var(--border);padding-top:6px;margin-bottom:4px}
+.ev-row{display:flex;align-items:flex-start;gap:5px;padding:2px 0;font-size:10px}
+.ev-time{font-family:'DM Mono',monospace;color:var(--subtle);white-space:nowrap;min-width:68px}
+.ev-title{color:var(--text);font-weight:500;line-height:1.4}
+.no-ev{font-size:11px;color:var(--subtle);padding:3px 0}
 
-/* メンバーリスト（管理画面内） */
-.member-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 1.5rem; }
-.member-row {
-  display: grid;
-  grid-template-columns: 20px 36px 1fr 1fr 1fr auto;
-  gap: 8px; align-items: center;
-  padding: 10px 12px;
-  background: var(--bg);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  transition: box-shadow 0.15s, background 0.15s;
-  cursor: default;
-}
-.member-row:hover { border-color: var(--gold-light); }
-.member-row.dragging {
-  opacity: 0.4;
-}
-.member-row.drag-over {
-  border-color: var(--gold);
-  background: var(--gold-light);
-  box-shadow: 0 0 0 2px var(--gold-light);
-}
-.drag-handle {
-  cursor: grab;
-  color: var(--subtle);
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: center;
-  padding: 2px 0;
-  user-select: none;
-}
-.drag-handle:active { cursor: grabbing; }
-.drag-handle span {
-  display: block;
-  width: 12px;
-  height: 2px;
-  background: currentColor;
-  border-radius: 1px;
-}
-.m-avatar-sm {
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600;
-}
-.m-inp {
-  font-size: 12px; padding: 5px 8px;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: var(--surface); color: var(--text);
-  font-family: 'DM Sans', sans-serif; width: 100%;
-}
-.m-inp:focus { outline: none; border-color: var(--gold); }
-.m-sel {
-  font-size: 11px; padding: 5px 6px;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: var(--surface); color: var(--text);
-  font-family: 'DM Sans', sans-serif; width: 100%;
-  cursor: pointer;
-}
+.edit-controls{margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.adj-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.adj-label{font-size:10px;color:var(--subtle);white-space:nowrap}
+.adj-row input[type=range]{flex:1;accent-color:var(--gold);cursor:pointer}
+.adj-val{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);min-width:28px;text-align:right}
+.comment-disp{font-size:11px;color:var(--muted);cursor:pointer;padding:2px 0;min-height:16px;line-height:1.5}
+.comment-disp:hover{color:var(--text)}
+.comment-disp.empty{color:var(--subtle);font-style:italic}
+.comment-inp{width:100%;font-size:11px;border:1px solid var(--border);border-radius:6px;padding:4px 7px;background:var(--bg);color:var(--text);resize:none;font-family:'DM Sans',sans-serif}
+.comment-inp:focus{outline:none;border-color:var(--gold)}
+.save-sm{font-size:10px;padding:2px 10px;margin-top:3px;border-radius:5px;border:1px solid var(--border);background:var(--bg);cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif}
+.save-sm:hover{border-color:var(--gold);color:var(--gold-dark)}
+.readonly-block{margin-top:8px;padding-top:6px;border-top:1px solid var(--border);min-height:16px}
+.comment-readonly{font-size:11px;color:var(--muted);font-style:italic}
 
-/* 新規追加フォーム */
-.add-form {
-  background: var(--bg); border: 1px dashed var(--border);
-  border-radius: var(--radius-sm); padding: 1rem;
-}
-.add-form-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: var(--muted); }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.form-label { font-size: 11px; color: var(--subtle); margin-bottom: 3px; }
-.form-inp {
-  font-size: 13px; padding: 7px 10px; width: 100%;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: var(--surface); color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-}
-.form-inp:focus { outline: none; border-color: var(--gold); }
+/* ── ドロワー ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200}
+.overlay.open{display:block}
+.drawer{position:fixed;top:0;right:-480px;bottom:0;width:460px;background:var(--surface);border-left:1px solid var(--border);z-index:201;transition:right .3s ease;display:flex;flex-direction:column}
+.drawer.open{right:0}
+.drawer-head{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.drawer-title{font-size:16px;font-weight:600}
+.close-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;font-size:18px;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.close-btn:hover{background:var(--bg)}
+.drawer-body{flex:1;overflow-y:auto;padding:1.5rem}
+.drawer-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0}
+.member-list{display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem}
+.member-row{display:grid;grid-template-columns:20px 32px 1fr 1fr auto;gap:8px;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);transition:box-shadow .15s}
+.member-row:hover{border-color:var(--gold-light)}
+.member-row.dragging{opacity:.4}
+.member-row.drag-over{border-color:var(--gold);background:var(--gold-light)}
+.drag-handle{cursor:grab;color:var(--subtle);display:flex;flex-direction:column;gap:2px;align-items:center;user-select:none}
+.drag-handle:active{cursor:grabbing}
+.drag-handle span{display:block;width:12px;height:2px;background:currentColor;border-radius:1px}
+.m-avatar-sm{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.m-inp{font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;width:100%}
+.m-inp:focus{outline:none;border-color:var(--gold)}
+.section-label{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--subtle);text-transform:uppercase;margin-bottom:10px;margin-top:1.5rem}
+.section-label:first-child{margin-top:0}
+.divider{height:1px;background:var(--border);margin:1rem 0}
+.add-form{background:var(--bg);border:1px dashed var(--border);border-radius:var(--radius-sm);padding:1rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.form-label{font-size:11px;color:var(--subtle);margin-bottom:3px}
+.form-inp{font-size:13px;padding:7px 10px;width:100%;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif}
+.form-inp:focus{outline:none;border-color:var(--gold)}
+.color-picker{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.color-opt{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .1s}
+.color-opt:hover{transform:scale(1.15)}
+.color-opt.selected{border-color:var(--text)}
 
-/* カラーピッカー */
-.color-picker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.color-opt {
-  width: 24px; height: 24px; border-radius: 50%;
-  cursor: pointer; border: 2px solid transparent;
-  transition: transform 0.1s;
-}
-.color-opt:hover { transform: scale(1.15); }
-.color-opt.selected { border-color: var(--text); }
+.page-footer{margin-top:2rem;padding:1rem 1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-note{font-size:12px;color:var(--subtle)}
 
-/* フッター */
-.page-footer {
-  margin-top: 2rem;
-  padding: 1rem 1.5rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  display: flex; align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap; gap: 12px;
-}
-.footer-note { font-size: 12px; color: var(--subtle); }
-.footer-btns { display: flex; gap: 10px; }
-
-/* セクション区切り */
-.section-label {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-  color: var(--subtle); text-transform: uppercase;
-  margin-bottom: 10px; margin-top: 1.5rem;
-}
-.section-label:first-child { margin-top: 0; }
-.divider { height: 1px; background: var(--border); margin: 1rem 0; }
-
-/* レスポンシブ */
-@media (max-width: 600px) {
-  .content { padding: 1rem; }
-  .drawer { width: 100%; right: -100%; }
-  .member-row { grid-template-columns: 20px 30px 1fr auto; }
-  .m-inp:nth-child(4), .m-sel { display: none; }
-}
+@media(max-width:600px){.content{padding:1rem}.drawer{width:100%;right:-100%}.header{padding:0 1rem}}
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">TRIUMPH <span>Team Board</span></div>
-  <div class="header-right">
-    <div class="sync-badge" id="syncBadge">● 4/14 22:04 同期済み</div>
-    <button class="btn" onclick="openDrawer()">⚙ メンバー管理</button>
-  </div>
-</header>
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--subtle)">読み込み中...</div>
+</div>
 
-<div class="main">
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">TRIUMPH <span>Team Board</span></div>
+    <div class="login-sub">Googleアカウントでログインしてください</div>
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Googleでログイン
+    </button>
+  </div>
+</div>
+
+<div id="mainApp">
+  <header class="header">
+    <div class="logo">TRIUMPH <span>Team Board</span></div>
+    <div class="header-right">
+      <div class="sync-badge"><span class="sync-dot"></span>リアルタイム同期中</div>
+      <div class="cal-badge" id="calBadge">Cal: 読込中</div>
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar"></div>
+        <span id="userName" style="font-size:12px"></span>
+      </div>
+      <button class="btn btn-sm" id="adminBtn" style="display:none" onclick="openDrawer()">⚙ メンバー管理</button>
+      <button class="btn btn-sm" onclick="doSignOut()">ログアウト</button>
+    </div>
+  </header>
   <div class="content">
     <div class="summary-row">
-      <div class="summary-pills" id="summaryPills"><div class="pill" style="background:#eaf3ec;border-color:#b8dcc0">
-      <span class="pill-dot" style="background:#3d7a4a"></span>
-      <span style="color:#3d7a4a;font-size:12px">余裕あり 17人</span>
-    </div><div class="pill" style="background:#fef9e6;border-color:#e8d68a">
-      <span class="pill-dot" style="background:#d4aa00"></span>
-      <span style="color:#d4aa00;font-size:12px">ふつう 3人</span>
-    </div><div class="pill" style="background:#fef0dc;border-color:#f0c090">
-      <span class="pill-dot" style="background:#e07820"></span>
-      <span style="color:#e07820;font-size:12px">やや忙しい 1人</span>
-    </div><div class="pill" style="background:#fceaea;border-color:#f0b0b0">
-      <span class="pill-dot" style="background:#d04040"></span>
-      <span style="color:#d04040;font-size:12px">キツい！ 0人</span>
-    </div></div>
-      <div class="date-str" id="dateStr">2026年4月14日（火）</div>
+      <div class="summary-pills" id="summaryPills"></div>
+      <div class="date-str" id="dateStr"></div>
     </div>
-    <div class="grid" id="grid"><div class="card" id="card-sawaguchi">
-    <div class="card-top">
-      <div class="avatar" style="background:#f1e8fa;color:#7030a0">沢</div>
-      <div>
-        <div class="card-name">沢口</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-sawaguchi" style="color: rgb(224, 120, 32);">59%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-sawaguchi" style="width: 59%; background: rgb(224, 120, 32);"></div></div>
-    <div class="status-chip" id="chip-sawaguchi" style="background: rgb(254, 240, 220); color: rgb(138, 69, 0);"><span class="chip-dot" style="background:#8a4500;width:6px;height:6px;border-radius:50%"></span>やや忙しい</div>
-    <div class="events-block"><div class="ev-row"><span class="ev-time">10:00-11:00</span><span class="ev-title">はりきゅう</span></div><div class="ev-row"><span class="ev-time">11:30-12:00</span><span class="ev-title">顧問名鑑</span></div><div class="ev-row"><span class="ev-time">12:30-16:30</span><span class="ev-title">ロケハン</span></div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('sawaguchi',this.value)">
-      <span class="adj-val" id="av-sawaguchi">-25</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('sawaguchi')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776170946463">
-    <div class="card-top">
-      <div class="avatar" style="background:#fdf6e3;color:#c8a84b">野</div>
-      <div>
-        <div class="card-name">野中</div>
-        <div class="card-role">三月</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776170946463" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776170946463" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776170946463" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776170946463',this.value)">
-      <span class="adj-val" id="av-m_1776170946463">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776170946463')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776170969213">
-    <div class="card-top">
-      <div class="avatar" style="background:#fbe9de;color:#c55a11">吉</div>
-      <div>
-        <div class="card-name">吉野</div>
-        <div class="card-role">晃弘</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776170969213" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776170969213" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776170969213" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776170969213',this.value)">
-      <span class="adj-val" id="av-m_1776170969213">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776170969213')">コメントを追加...</div></div>
-  </div><div class="card" id="card-nagai">
-    <div class="card-top">
-      <div class="avatar" style="background:#fbe9de;color:#c55a11">永</div>
-      <div>
-        <div class="card-name">永井</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-nagai" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-nagai" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-nagai" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('nagai',this.value)">
-      <span class="adj-val" id="av-nagai">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('nagai')">コメントを追加...</div></div>
-  </div><div class="card" id="card-sakai">
-    <div class="card-top">
-      <div class="avatar" style="background:#edf6e5;color:#70ad47">酒</div>
-      <div>
-        <div class="card-name">酒井</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-sakai" style="color:#d4aa00">30%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-sakai" style="width:30%;background:#d4aa00"></div></div>
-    <div class="status-chip" id="chip-sakai" style="background:#fef9e6;color:#8a6e00">
-      <span class="chip-dot" style="background:#8a6e00"></span>ふつう
-    </div>
-    <div class="events-block"><div class="ev-row"><span class="ev-time">13:00-15:00</span><span class="ev-title">花王ロケハン@台場</span></div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('sakai',this.value)">
-      <span class="adj-val" id="av-sakai">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('sakai')">コメントを追加...</div></div>
-  </div><div class="card" id="card-yuasa">
-    <div class="card-top">
-      <div class="avatar" style="background:#e8f1fb;color:#5b9bd5">湯</div>
-      <div>
-        <div class="card-name">湯浅</div>
-        <div class="card-role">営業</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-yuasa" style="color:#d4aa00">35%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-yuasa" style="width:35%;background:#d4aa00"></div></div>
-    <div class="status-chip" id="chip-yuasa" style="background:#fef9e6;color:#8a6e00">
-      <span class="chip-dot" style="background:#8a6e00"></span>ふつう
-    </div>
-    <div class="events-block"><div class="ev-row"><span class="ev-time">13:00-14:00</span><span class="ev-title">中央</span></div><div class="ev-row"><span class="ev-time">18:30-19:30</span><span class="ev-title">平井</span></div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('yuasa',this.value)">
-      <span class="adj-val" id="av-yuasa">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('yuasa')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171196550">
-    <div class="card-top">
-      <div class="avatar" style="background:#fbe9de;color:#c55a11">黒</div>
-      <div>
-        <div class="card-name">黒田</div>
-        <div class="card-role">KEN</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171196550" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171196550" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171196550" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171196550',this.value)">
-      <span class="adj-val" id="av-m_1776171196550">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171196550')">コメントを追加...</div></div>
-  </div><div class="card" id="card-seki">
-    <div class="card-top">
-      <div class="avatar" style="background:#edf6e5;color:#70ad47">関</div>
-      <div>
-        <div class="card-name">関</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-seki" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-seki" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-seki" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('seki',this.value)">
-      <span class="adj-val" id="av-seki">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('seki')">コメントを追加...</div></div>
-  </div><div class="card" id="card-sakashita">
-    <div class="card-top">
-      <div class="avatar" style="background:#fdf6e3;color:#c8a84b">坂</div>
-      <div>
-        <div class="card-name">坂下</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-sakashita" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-sakashita" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-sakashita" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('sakashita',this.value)">
-      <span class="adj-val" id="av-sakashita">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('sakashita')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171047231">
-    <div class="card-top">
-      <div class="avatar" style="background:#f3e5f5;color:#8e44ad">佐</div>
-      <div>
-        <div class="card-name">佐々木</div>
-        <div class="card-role">道雄</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171047231" style="color:#d4aa00">30%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171047231" style="width:30%;background:#d4aa00"></div></div>
-    <div class="status-chip" id="chip-m_1776171047231" style="background:#fef9e6;color:#8a6e00">
-      <span class="chip-dot" style="background:#8a6e00"></span>ふつう
-    </div>
-    <div class="events-block"><div class="ev-row"><span class="ev-time">13:00-15:00</span><span class="ev-title">花王ロケハン</span></div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171047231',this.value)">
-      <span class="adj-val" id="av-m_1776171047231">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171047231')">コメントを追加...</div></div>
-  </div><div class="card" id="card-yasuhara">
-    <div class="card-top">
-      <div class="avatar" style="background:#fbe9de;color:#c55a11">安</div>
-      <div>
-        <div class="card-name">安原</div>
-        <div class="card-role">編集</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-yasuhara" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-yasuhara" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-yasuhara" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('yasuhara',this.value)">
-      <span class="adj-val" id="av-yasuhara">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('yasuhara')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171077404">
-    <div class="card-top">
-      <div class="avatar" style="background:#fff3e0;color:#e67e22">石</div>
-      <div>
-        <div class="card-name">石川</div>
-        <div class="card-role">麻衣</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171077404" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171077404" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171077404" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171077404',this.value)">
-      <span class="adj-val" id="av-m_1776171077404">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171077404')">コメントを追加...</div></div>
-  </div><div class="card" id="card-tanaka">
-    <div class="card-top">
-      <div class="avatar" style="background:#e0f5fc;color:#00b0f0">田</div>
-      <div>
-        <div class="card-name">田中麻衣</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-tanaka" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-tanaka" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-tanaka" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('tanaka',this.value)">
-      <span class="adj-val" id="av-tanaka">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('tanaka')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171143270">
-    <div class="card-top">
-      <div class="avatar" style="background:#e0f5fc;color:#00b0f0">奥</div>
-      <div>
-        <div class="card-name">奥本</div>
-        <div class="card-role">拓也</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171143270" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171143270" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171143270" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171143270',this.value)">
-      <span class="adj-val" id="av-m_1776171143270">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171143270')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171093683">
-    <div class="card-top">
-      <div class="avatar" style="background:#edf6e5;color:#70ad47">岡</div>
-      <div>
-        <div class="card-name">岡崎</div>
-        <div class="card-role">悟一</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171093683" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171093683" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171093683" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171093683',this.value)">
-      <span class="adj-val" id="av-m_1776171093683">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171093683')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171338732">
-    <div class="card-top">
-      <div class="avatar" style="background:#f1e8fa;color:#7030a0">田</div>
-      <div>
-        <div class="card-name">田中</div>
-        <div class="card-role">修</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171338732" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171338732" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171338732" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171338732',this.value)">
-      <span class="adj-val" id="av-m_1776171338732">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171338732')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171513462">
-    <div class="card-top">
-      <div class="avatar" style="background:#ffeaea;color:#c0392b">木</div>
-      <div>
-        <div class="card-name">木村</div>
-        <div class="card-role">美恵</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171513462" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171513462" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171513462" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171513462',this.value)">
-      <span class="adj-val" id="av-m_1776171513462">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171513462')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171527173">
-    <div class="card-top">
-      <div class="avatar" style="background:#fff3e0;color:#e67e22">川</div>
-      <div>
-        <div class="card-name">川口</div>
-        <div class="card-role">和輝</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171527173" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171527173" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171527173" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171527173',this.value)">
-      <span class="adj-val" id="av-m_1776171527173">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171527173')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171232662">
-    <div class="card-top">
-      <div class="avatar" style="background:#e8faf0;color:#27ae60">堀</div>
-      <div>
-        <div class="card-name">堀</div>
-        <div class="card-role">まさひろ</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171232662" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171232662" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171232662" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171232662',this.value)">
-      <span class="adj-val" id="av-m_1776171232662">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171232662')">コメントを追加...</div></div>
-  </div><div class="card" id="card-yuta">
-    <div class="card-top">
-      <div class="avatar" style="background:#f1e8fa;color:#7030a0">y</div>
-      <div>
-        <div class="card-name">yuta</div>
-        <div class="card-role">制作</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-yuta" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-yuta" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-yuta" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('yuta',this.value)">
-      <span class="adj-val" id="av-yuta">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('yuta')">コメントを追加...</div></div>
-  </div><div class="card" id="card-m_1776171553662">
-    <div class="card-top">
-      <div class="avatar" style="background:#fff3e0;color:#e67e22">姜</div>
-      <div>
-        <div class="card-name">姜</div>
-        <div class="card-role">大一</div>
-      </div>
-    </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-m_1776171553662" style="color:#3d7a4a">0%</span>
-    </div>
-    <div class="track"><div class="bar" id="bar-m_1776171553662" style="width:0%;background:#3d7a4a"></div></div>
-    <div class="status-chip" id="chip-m_1776171553662" style="background:#e8faf0;color:#1e5e30">
-      <span class="chip-dot" style="background:#3d7a4a"></span>余裕あり
-    </div>
-    <div class="events-block"><div class="no-ev">本日の予定なし</div></div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="0" oninput="updateAdj('m_1776171553662',this.value)">
-      <span class="adj-val" id="av-m_1776171553662">0</span>
-    </div>
-    <div class="comment-area"><div class="comment-disp empty" onclick="startEdit('m_1776171553662')">コメントを追加...</div></div>
-  </div></div>
+    <div class="grid" id="grid"></div>
     <div class="page-footer">
-      <div class="footer-note">URLを共有するだけ — ChatWork / Slack / LINE でそのまま使えます</div>
-      <div class="footer-btns">
-        <button class="btn" onclick="copyUrl()">🔗 URLをコピー</button>
-        <button class="btn" onclick="downloadHtml()">⬇ HTMLを保存</button>
-      </div>
+      <div class="footer-note">このURLをChatWorkやSlackで共有 — 全員がリアルタイムで確認できます</div>
+      <button class="btn btn-sm" onclick="copyUrl()">🔗 URLをコピー</button>
     </div>
   </div>
 </div>
 
-<!-- 管理ドロワー -->
 <div class="overlay" id="overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-head">
@@ -899,458 +215,453 @@ body {
   </div>
 </div>
 
-<script>
-// ──────────────────────────────────────────
-// データ定義
-// ──────────────────────────────────────────
-const CALENDAR_OPTIONS = [
-  { label: "なし（手動のみ）", id: "" },
-  { label: "制作-沢口", id: "0eq3mvlb1be08s1f33ph2j2hbk" },
-  { label: "制作-関", id: "e58o3o0pbnbsov0chk62rlsg18" },
-  { label: "制作-坂下", id: "7jpdi3m3oksg7jnb5ntqmfrt20" },
-  { label: "制作-永井", id: "1evoohglvcc29v1ge2dtshpsg4" },
-  { label: "制作-田中麻衣", id: "t22i8v7ufajtv123h70n9qbvjg" },
-  { label: "制作-酒井", id: "p72gu36q0pchcc6tvldl3bi62o" },
-  { label: "制作-yuta", id: "b22e68babd1f16b2f88b0d9cae283092402194e4586d16b4093f5a39f46195e6" },
-  { label: "SASAKI", id: "rl6nun4qg9f13ekugjj34p1u20" },
-  { label: "営業-湯浅", id: "ikrnstah1u6gongbagf2d96t5k" },
-  { label: "編集-安原", id: "p2rm1phn18341sf8m1f3sm2m4o" },
-  { label: "原修一", id: "sf22h6338q1hat0p1vd96nuld0" },
-  { label: "KIPz（営業）", id: "kipz.online2021@gmail.com" },
-  { label: "Calendar Triumph", id: "trp.all.staff@gmail.com" },
-];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut as fbSignOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, set, get, update, onValue }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-const COLORS = [
-  { bg: "#fdf6e3", fg: "#c8a84b" },
-  { bg: "#e8f1fb", fg: "#5b9bd5" },
-  { bg: "#edf6e5", fg: "#70ad47" },
-  { bg: "#fbe9de", fg: "#c55a11" },
-  { bg: "#f1e8fa", fg: "#7030a0" },
-  { bg: "#e0f5fc", fg: "#00b0f0" },
-  { bg: "#ffeaea", fg: "#c0392b" },
-  { bg: "#e8faf0", fg: "#27ae60" },
-  { bg: "#fff3e0", fg: "#e67e22" },
-  { bg: "#f3e5f5", fg: "#8e44ad" },
-];
-
-// ── カレンダーから取得済みデータ（今日分） ──
-const CAL_DATA = {
-  "rl6nun4qg9f13ekugjj34p1u20": [{ time:"13:00-15:00", name:"花王ロケハン", mins:120 }],
-  "ikrnstah1u6gongbagf2d96t5k": [{ time:"13:00-14:00", name:"中央", mins:60 },{ time:"18:30-19:30", name:"平井", mins:60 }],
-  "0eq3mvlb1be08s1f33ph2j2hbk": [{ time:"10:00-11:00", name:"はりきゅう", mins:60 },{ time:"11:30-12:00", name:"顧問名鑑", mins:30 },{ time:"12:30-16:30", name:"ロケハン", mins:240 }],
-  "p72gu36q0pchcc6tvldl3bi62o": [{ time:"13:00-15:00", name:"花王ロケハン@台場", mins:120 }],
+const firebaseConfig = {
+  apiKey:"AIzaSyCELbdDjM3aifraIywNfWiKAdVX8-4ZIaU",
+  authDomain:"triumph-board-25e28.firebaseapp.com",
+  databaseURL:"https://triumph-board-25e28-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"triumph-board-25e28",
+  storageBucket:"triumph-board-25e28.firebasestorage.app",
+  messagingSenderId:"496104771006",
+  appId:"1:496104771006:web:93a03b78be67eb5de5bdef"
 };
 
-const DEFAULT_MEMBERS = [
-  { id:"sasaki",   name:"SASAKI",   role:"制作",       cal:"rl6nun4qg9f13ekugjj34p1u20", colorIdx:0 },
-  { id:"yuasa",    name:"湯浅",     role:"営業",       cal:"ikrnstah1u6gongbagf2d96t5k", colorIdx:1 },
-  { id:"sawaguchi",name:"沢口",     role:"制作",       cal:"0eq3mvlb1be08s1f33ph2j2hbk", colorIdx:4 },
-  { id:"sakai",    name:"酒井",     role:"制作",       cal:"p72gu36q0pchcc6tvldl3bi62o", colorIdx:2 },
-  { id:"nagai",    name:"永井",     role:"制作",       cal:"1evoohglvcc29v1ge2dtshpsg4", colorIdx:3 },
-  { id:"tanaka",   name:"田中麻衣", role:"制作",       cal:"t22i8v7ufajtv123h70n9qbvjg", colorIdx:5 },
-  { id:"seki",     name:"関",       role:"制作",       cal:"e58o3o0pbnbsov0chk62rlsg18", colorIdx:2 },
-  { id:"sakashita",name:"坂下",     role:"制作",       cal:"7jpdi3m3oksg7jnb5ntqmfrt20", colorIdx:0 },
-  { id:"hara",     name:"原修一",   role:"ディレクター",cal:"sf22h6338q1hat0p1vd96nuld0", colorIdx:1 },
-  { id:"yasuhara", name:"安原",     role:"編集",       cal:"p2rm1phn18341sf8m1f3sm2m4o", colorIdx:3 },
-  { id:"yuta",     name:"yuta",     role:"制作",       cal:"b22e68babd1f16b2f88b0d9cae283092402194e4586d16b4093f5a39f46195e6", colorIdx:4 },
-];
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-// ──────────────────────────────────────────
-// State
-// ──────────────────────────────────────────
-let members = [];
-let userState = {};
-
-function loadState() {
-  try {
-    const ms = localStorage.getItem("triumph_members_v3");
-    const us = localStorage.getItem("triumph_userstate_v3");
-    members = ms ? JSON.parse(ms) : JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
-    userState = us ? JSON.parse(us) : {};
-  } catch(e) {
-    members = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
-    userState = {};
-  }
-  members.forEach(m => {
-    if (!userState[m.id]) userState[m.id] = { adj:0, comment:"", editing:false };
-  });
-}
-
-function saveState() {
-  localStorage.setItem("triumph_members_v3", JSON.stringify(members));
-  localStorage.setItem("triumph_userstate_v3", JSON.stringify(userState));
-}
-
-// ──────────────────────────────────────────
-// 計算ロジック
-// ──────────────────────────────────────────
+// ── 定数 ──
+const ADMIN_EMAILS = ["33q33q33q@gmail.com","sawaguchi@e-production.jp"];
 const WORK_MINS = 480;
 
-function getCalEvents(m) {
-  return CAL_DATA[m.cal] || [];
+const COLORS = [
+  {bg:"#fdf6e3",fg:"#c8a84b"},{bg:"#e8f1fb",fg:"#5b9bd5"},
+  {bg:"#edf6e5",fg:"#70ad47"},{bg:"#fbe9de",fg:"#c55a11"},
+  {bg:"#f1e8fa",fg:"#7030a0"},{bg:"#e0f5fc",fg:"#00b0f0"},
+  {bg:"#ffeaea",fg:"#c0392b"},{bg:"#e8faf0",fg:"#27ae60"},
+  {bg:"#fff3e0",fg:"#e67e22"},{bg:"#f3e5f5",fg:"#8e44ad"},
+];
+
+const DEFAULT_MEMBERS = [
+  {id:"sasaki",name:"SASAKI",role:"制作",colorIdx:0},
+  {id:"yuasa",name:"湯浅",role:"営業",colorIdx:1},
+  {id:"sawaguchi",name:"沢口",role:"制作",colorIdx:4},
+  {id:"sakai",name:"酒井",role:"制作",colorIdx:2},
+  {id:"nagai",name:"永井",role:"制作",colorIdx:3},
+  {id:"tanaka",name:"田中麻衣",role:"制作",colorIdx:5},
+  {id:"seki",name:"関",role:"制作",colorIdx:2},
+  {id:"sakashita",name:"坂下",role:"制作",colorIdx:0},
+  {id:"hara",name:"原修一",role:"ディレクター",colorIdx:1},
+  {id:"yasuhara",name:"安原",role:"編集",colorIdx:3},
+  {id:"yuta",name:"yuta",role:"制作",colorIdx:4},
+];
+
+// Googleカレンダー → メンバーID マッピング
+const CAL_IDS = {
+  sasaki:    "rl6nun4qg9f13ekugjj34p1u20@group.calendar.google.com",
+  yuasa:     "ikrnstah1u6gongbagf2d96t5k@group.calendar.google.com",
+  sawaguchi: "0eq3mvlb1be08s1f33ph2j2hbk@group.calendar.google.com",
+  sakai:     "p72gu36q0pchcc6tvldl3bi62o@group.calendar.google.com",
+  nagai:     "1evoohglvcc29v1ge2dtshpsg4@group.calendar.google.com",
+  tanaka:    "t22i8v7ufajtv123h70n9qbvjg@group.calendar.google.com",
+  seki:      "e58o3o0pbnbsov0chk62rlsg18@group.calendar.google.com",
+  sakashita: "7jpdi3m3oksg7jnb5ntqmfrt20@group.calendar.google.com",
+  hara:      "sf22h6338q1hat0p1vd96nuld0@group.calendar.google.com",
+  yasuhara:  "p2rm1phn18341sf8m1f3sm2m4o@group.calendar.google.com",
+  yuta:      "b22e68babd1f16b2f88b0d9cae283092402194e4586d16b4093f5a39f46195e6@group.calendar.google.com",
+};
+
+const EMAIL_TO_MEMBER = {
+  "33q33q33q@gmail.com":"sawaguchi",
+  "sawaguchi@e-production.jp":"sawaguchi",
+  "yuasa.afterday@gmail.com":"yuasa",
+  "michio.mailbox@gmail.com":"sasaki",
+  "tomoya@e-production.jp":"sakai",
+};
+
+// ── State ──
+let currentUser = null;
+let myMemberId = null;
+let members = [];
+let states = {};
+let calData = {};   // {memberId: [{time,name,mins}]}
+let editingMembers = [];
+let newColorIdx = 0;
+let dragSrcId = null;
+
+// ── カレンダー自動更新 ──
+// Firebase経由でカレンダーデータを保存・共有
+// 管理者ログイン時にGoogle Calendar APIから取得してFirebaseに保存
+// 全員がFirebaseから読むことでリアルタイム反映
+
+async function fetchCalendarData() {
+  // Firebaseに保存されているカレンダーデータを読む
+  const snap = await get(ref(db,"calData"));
+  if (snap.exists()) {
+    const saved = snap.val();
+    // 今日の日付と一致するか確認
+    const today = new Date().toISOString().slice(0,10);
+    if (saved.date === today) {
+      calData = saved.events || {};
+      updateCalBadge(saved.updatedAt);
+      return;
+    }
+  }
+  // データがないか古い場合はデフォルト表示
+  calData = {};
 }
 
-function calcPct(m) {
-  const evs = getCalEvents(m);
-  const totalMins = evs.reduce((s, e) => s + (e.mins || 0), 0);
-  const count = evs.length;
-  const calBase = Math.min(Math.round((totalMins / WORK_MINS) * 100), 100);
-  const countBonus = Math.min(count * 5, 20);
-  const adj = (userState[m.id] || {}).adj || 0;
-  return Math.max(0, Math.min(100, calBase + countBonus + adj));
+function updateCalBadge(ts) {
+  const badge = document.getElementById("calBadge");
+  if (!badge) return;
+  if (ts) {
+    const d = new Date(ts);
+    const hm = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+    badge.textContent = `Cal: ${hm}更新`;
+    badge.style.background = "#eaf3ec";
+    badge.style.color = "#1e5e30";
+    badge.style.borderColor = "#b8dcc0";
+  } else {
+    badge.textContent = "Cal: 未同期";
+  }
 }
 
-function getLevel(pct) {
-  if (pct <= 20) return { label:"余裕あり", dot:"#3d7a4a", bar:"#3d7a4a", bbg:COLORS[7].bg, btx:"#1e5e30", pillBg:"#eaf3ec", pillBorder:"#b8dcc0" };
-  if (pct <= 45) return { label:"ふつう",   dot:"#8a6e00", bar:"#d4aa00", bbg:"#fef9e6", btx:"#8a6e00", pillBg:"#fef9e6", pillBorder:"#e8d68a" };
-  if (pct <= 70) return { label:"やや忙しい",dot:"#8a4500", bar:"#e07820", bbg:"#fef0dc", btx:"#8a4500", pillBg:"#fef0dc", pillBorder:"#f0c090" };
-  return { label:"キツい！", dot:"#8a1f1f", bar:"#d04040", bbg:"#fceaea", btx:"#8a1f1f", pillBg:"#fceaea", pillBorder:"#f0b0b0" };
+// ── 計算 ──
+const calcPct = (id) => {
+  const evs = calData[id] || [];
+  const mins = evs.reduce((s,e)=>s+(e.mins||0),0);
+  const calBase = Math.min(Math.round((mins/WORK_MINS)*100),100);
+  const bonus = Math.min(evs.length*5,20);
+  const adj = (states[id]||{}).adj||0;
+  return Math.max(0,Math.min(100,calBase+bonus+adj));
+};
+
+const getLevel = (pct) => {
+  if (pct<=20) return {label:"余裕あり",dot:"#3d7a4a",bar:"#3d7a4a",bbg:"#eaf3ec",btx:"#1e5e30"};
+  if (pct<=45) return {label:"ふつう",dot:"#8a6e00",bar:"#d4aa00",bbg:"#fef9e6",btx:"#8a6e00"};
+  if (pct<=70) return {label:"やや忙しい",dot:"#8a4500",bar:"#e07820",bbg:"#fef0dc",btx:"#8a4500"};
+  return {label:"キツい！",dot:"#8a1f1f",bar:"#d04040",bbg:"#fceaea",btx:"#8a1f1f"};
+};
+
+// ── 顔SVG生成 ──
+function faceSvg(pct, colorFg, colorBg) {
+  // 忙しさに応じて顔が変わる
+  // 0-20: にこにこ（水色背景）
+  // 21-45: ふつう（黄色背景）
+  // 46-70: やや困り顔（オレンジ背景）
+  // 71-100: 真っ赤・汗（赤背景）
+
+  let faceColor, cheekColor, eyeExpr, mouthPath, bgColor, strokeColor;
+
+  if (pct <= 20) {
+    bgColor = "#dff0ff"; faceColor = "#ffe0b2"; cheekColor = "#ffb3ba";
+    strokeColor = "#5b9bd5";
+    eyeExpr = `
+      <ellipse cx="20" cy="25" rx="3" ry="3.5" fill="#3a2a1a"/>
+      <ellipse cx="44" cy="25" rx="3" ry="3.5" fill="#3a2a1a"/>
+      <ellipse cx="19" cy="24" rx="1.2" ry="1.2" fill="white"/>
+      <ellipse cx="43" cy="24" rx="1.2" ry="1.2" fill="white"/>`;
+    mouthPath = `<path d="M20 37 Q32 46 44 37" stroke="#c0392b" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  } else if (pct <= 45) {
+    bgColor = "#fffde7"; faceColor = "#ffe0b2"; cheekColor = "#ffccbc";
+    strokeColor = "#d4aa00";
+    eyeExpr = `
+      <ellipse cx="20" cy="25" rx="3" ry="3" fill="#3a2a1a"/>
+      <ellipse cx="44" cy="25" rx="3" ry="3" fill="#3a2a1a"/>
+      <ellipse cx="19" cy="24" rx="1.2" ry="1.2" fill="white"/>
+      <ellipse cx="43" cy="24" rx="1.2" ry="1.2" fill="white"/>`;
+    mouthPath = `<path d="M22 38 Q32 43 42 38" stroke="#c0392b" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  } else if (pct <= 70) {
+    bgColor = "#fff3e0"; faceColor = "#ffcc80"; cheekColor = "#ffb74d";
+    strokeColor = "#e07820";
+    eyeExpr = `
+      <ellipse cx="20" cy="25" rx="3" ry="2.5" fill="#3a2a1a"/>
+      <ellipse cx="44" cy="25" rx="3" ry="2.5" fill="#3a2a1a"/>
+      <ellipse cx="19" cy="24" rx="1.2" ry="1" fill="white"/>
+      <ellipse cx="43" cy="24" rx="1.2" ry="1" fill="white"/>
+      <path d="M17 20 Q20 18 23 20" stroke="#5a3a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M41 20 Q44 18 47 20" stroke="#5a3a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+    mouthPath = `<path d="M22 39 Q32 36 42 39" stroke="#c0392b" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+  } else {
+    bgColor = "#ffebee"; faceColor = "#ef9a9a"; cheekColor = "#e57373";
+    strokeColor = "#d04040";
+    eyeExpr = `
+      <ellipse cx="20" cy="26" rx="3.5" ry="2.5" fill="#3a2a1a"/>
+      <ellipse cx="44" cy="26" rx="3.5" ry="2.5" fill="#3a2a1a"/>
+      <ellipse cx="18.5" cy="25" rx="1.2" ry="1" fill="white"/>
+      <ellipse cx="42.5" cy="25" rx="1.2" ry="1" fill="white"/>
+      <path d="M16 19 Q20 16 24 19" stroke="#7a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M40 19 Q44 16 48 19" stroke="#7a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <text x="52" y="22" font-size="10" fill="#42a5f5">💧</text>`;
+    mouthPath = `
+      <path d="M22 40 Q32 34 42 40" stroke="#7a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <ellipse cx="32" cy="38" rx="6" ry="4" fill="#c0392b" opacity=".3"/>`;
+  }
+
+  return `<svg class="face-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="32" cy="32" r="30" fill="${bgColor}" stroke="${strokeColor}" stroke-width="1.5"/>
+    <ellipse cx="32" cy="34" rx="22" ry="22" fill="${faceColor}"/>
+    <ellipse cx="14" cy="36" rx="6" ry="4" fill="${cheekColor}" opacity=".5"/>
+    <ellipse cx="50" cy="36" rx="6" ry="4" fill="${cheekColor}" opacity=".5"/>
+    ${eyeExpr}
+    ${mouthPath}
+  </svg>`;
 }
 
-// ──────────────────────────────────────────
-// ボードレンダリング
-// ──────────────────────────────────────────
+// ── レンダリング ──
 function renderBoard() {
-  // 日付
   const d = new Date();
-  const wd = ["日","月","火","水","木","金","土"];
-  document.getElementById("dateStr").textContent =
-    `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）`;
+  const wd=["日","月","火","水","木","金","土"];
+  document.getElementById("dateStr").textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${wd[d.getDay()]}）`;
 
-  // サマリー
-  const counts = [0,0,0,0];
-  members.forEach(m => {
-    const p = calcPct(m);
-    if (p<=20) counts[0]++;
-    else if (p<=45) counts[1]++;
-    else if (p<=70) counts[2]++;
-    else counts[3]++;
-  });
-  const lvDefs = [
-    { label:"余裕あり", dot:"#3d7a4a", bg:"#eaf3ec", border:"#b8dcc0" },
-    { label:"ふつう",   dot:"#d4aa00", bg:"#fef9e6", border:"#e8d68a" },
-    { label:"やや忙しい",dot:"#e07820", bg:"#fef0dc", border:"#f0c090" },
-    { label:"キツい！", dot:"#d04040", bg:"#fceaea", border:"#f0b0b0" },
+  const counts=[0,0,0,0];
+  members.forEach(m=>{const p=calcPct(m.id);if(p<=20)counts[0]++;else if(p<=45)counts[1]++;else if(p<=70)counts[2]++;else counts[3]++;});
+  const ld=[
+    {label:"余裕あり",dot:"#3d7a4a",bg:"#eaf3ec",bd:"#b8dcc0"},
+    {label:"ふつう",dot:"#d4aa00",bg:"#fef9e6",bd:"#e8d68a"},
+    {label:"やや忙しい",dot:"#e07820",bg:"#fef0dc",bd:"#f0c090"},
+    {label:"キツい！",dot:"#d04040",bg:"#fceaea",bd:"#f0b0b0"}
   ];
-  document.getElementById("summaryPills").innerHTML = lvDefs.map((lv,i) =>
-    `<div class="pill" style="background:${lv.bg};border-color:${lv.border}">
-      <span class="pill-dot" style="background:${lv.dot}"></span>
-      <span style="color:${lv.dot};font-size:12px">${lv.label} ${counts[i]}人</span>
-    </div>`
-  ).join("");
-
-  // グリッド
-  document.getElementById("grid").innerHTML = members.map(m => cardHtml(m)).join("");
+  document.getElementById("summaryPills").innerHTML=ld.map((l,i)=>`<div class="pill" style="background:${l.bg};border-color:${l.bd}"><span class="pill-dot" style="background:${l.dot}"></span><span style="color:${l.dot};font-size:12px">${l.label} ${counts[i]}人</span></div>`).join("");
+  document.getElementById("grid").innerHTML=members.map(cardHtml).join("");
 }
 
 function cardHtml(m) {
-  const evs = getCalEvents(m);
-  const pct = calcPct(m);
+  const isMe = m.id===myMemberId;
+  const pct = calcPct(m.id);
   const lv = getLevel(pct);
-  const c = COLORS[m.colorIdx % COLORS.length];
-  const us = userState[m.id] || {};
-  const adj = us.adj || 0;
-  const comment = us.comment || "";
-  const editing = us.editing || false;
+  const c = COLORS[m.colorIdx%COLORS.length];
+  const us = states[m.id]||{};
+  const adj = us.adj||0;
+  const comment = us.comment||"";
+  const evs = calData[m.id]||[];
+  const showSteam = pct > 70;
+  const showSweat = pct > 45;
 
   const evHtml = evs.length
-    ? evs.map(e => `<div class="ev-row"><span class="ev-time">${e.time}</span><span class="ev-title">${e.name}</span></div>`).join("")
+    ? evs.map(e=>`<div class="ev-row"><span class="ev-time">${e.time}</span><span class="ev-title">${e.name}</span></div>`).join("")
     : `<div class="no-ev">本日の予定なし</div>`;
 
-  const cmtHtml = editing
-    ? `<textarea class="comment-inp" id="ci-${m.id}" rows="2">${comment}</textarea><button class="save-sm" onclick="saveComment('${m.id}')">保存</button>`
-    : `<div class="comment-disp ${comment?'':'empty'}" onclick="startEdit('${m.id}')">${comment || 'コメントを追加...'}</div>`;
+  const bottomHtml = isMe
+    ? `<div class="edit-controls">
+        <div class="adj-row">
+          <span class="adj-label">本人調整</span>
+          <input type="range" min="-30" max="100" step="5" value="${adj}" oninput="window.__adj('${m.id}',this.value)">
+          <span class="adj-val" id="av-${m.id}">${adj>0?'+'+adj:adj}</span>
+        </div>
+        <div id="cmt-area-${m.id}">
+          <div class="comment-disp${comment?'':' empty'}" onclick="window.__editCmt('${m.id}')">${comment||'コメントを追加...'}</div>
+        </div>
+      </div>`
+    : `<div class="readonly-block">${comment?`<div class="comment-readonly">"${comment}"</div>`:''}</div>`;
 
-  return `<div class="card" id="card-${m.id}">
+  return `<div class="card${isMe?' is-mine':''}" id="card-${m.id}">
     <div class="card-top">
-      <div class="avatar" style="background:${c.bg};color:${c.fg}">${m.name.charAt(0)}</div>
-      <div>
-        <div class="card-name">${m.name}</div>
-        <div class="card-role">${m.role}</div>
+      <div class="face-wrap">
+        ${isMe?'<div class="mine-ring"></div>':''}
+        ${faceSvg(pct, c.fg, c.bg)}
+        <div class="steam${showSteam?' show':''}">
+          <div class="steam-line"></div><div class="steam-line"></div><div class="steam-line"></div>
+        </div>
+        ${showSweat?'<div class="sweat show">💧</div>':''}
       </div>
+      <div class="card-name">${m.name}${isMe?'<span class="mine-badge">自分</span>':''}</div>
+      <div class="card-role">${m.role}</div>
     </div>
-    <div class="meter-head">
-      <span class="meter-label">詰まり具合</span>
-      <span class="meter-pct" id="pct-${m.id}" style="color:${lv.bar}">${pct}%</span>
-    </div>
+    <div class="meter-head"><span class="meter-label">詰まり具合</span><span class="meter-pct" id="pct-${m.id}" style="color:${lv.bar}">${pct}%</span></div>
     <div class="track"><div class="bar" id="bar-${m.id}" style="width:${pct}%;background:${lv.bar}"></div></div>
-    <div class="status-chip" id="chip-${m.id}" style="background:${lv.bbg};color:${lv.btx}">
-      <span class="chip-dot" style="background:${lv.dot}"></span>${lv.label}
-    </div>
+    <div class="status-chip" id="chip-${m.id}" style="background:${lv.bbg};color:${lv.btx}"><span class="chip-dot" style="background:${lv.dot}"></span>${lv.label}</div>
     <div class="events-block">${evHtml}</div>
-    <div class="adj-row">
-      <span class="adj-label">本人調整</span>
-      <input type="range" min="-30" max="50" step="5" value="${adj}"
-        oninput="updateAdj('${m.id}',this.value)">
-      <span class="adj-val" id="av-${m.id}">${adj>0?'+'+adj:adj}</span>
-    </div>
-    <div class="comment-area">${cmtHtml}</div>
+    ${bottomHtml}
   </div>`;
 }
 
-// ──────────────────────────────────────────
-// インタラクション
-// ──────────────────────────────────────────
-function updateAdj(id, val) {
-  val = parseInt(val);
-  if (!userState[id]) userState[id] = {};
-  userState[id].adj = val;
-  saveState();
-  const m = members.find(x => x.id === id);
-  if (!m) return;
-  const pct = calcPct(m);
-  const lv = getLevel(pct);
-  const barEl = document.getElementById("bar-"+id);
-  const pctEl = document.getElementById("pct-"+id);
-  const chipEl = document.getElementById("chip-"+id);
-  const avEl  = document.getElementById("av-"+id);
-  if (barEl) { barEl.style.width = pct+"%"; barEl.style.background = lv.bar; }
-  if (pctEl) { pctEl.textContent = pct+"%"; pctEl.style.color = lv.bar; }
-  if (chipEl) { chipEl.style.background = lv.bbg; chipEl.style.color = lv.btx;
-    chipEl.innerHTML = `<span class="chip-dot" style="background:${lv.dot};width:6px;height:6px;border-radius:50%"></span>${lv.label}`; }
-  if (avEl) avEl.textContent = val>0?'+'+val:val;
-  // サマリー再計算
-  const counts = [0,0,0,0];
-  members.forEach(mm => {
-    const p = calcPct(mm);
-    if (p<=20) counts[0]++; else if (p<=45) counts[1]++; else if (p<=70) counts[2]++; else counts[3]++;
-  });
-  const lvDefs = [
-    { label:"余裕あり", dot:"#3d7a4a", bg:"#eaf3ec", border:"#b8dcc0" },
-    { label:"ふつう",   dot:"#d4aa00", bg:"#fef9e6", border:"#e8d68a" },
-    { label:"やや忙しい",dot:"#e07820", bg:"#fef0dc", border:"#f0c090" },
-    { label:"キツい！", dot:"#d04040", bg:"#fceaea", border:"#f0b0b0" },
-  ];
-  document.getElementById("summaryPills").innerHTML = lvDefs.map((l,i) =>
-    `<div class="pill" style="background:${l.bg};border-color:${l.border}">
-      <span class="pill-dot" style="background:${l.dot}"></span>
-      <span style="color:${l.dot};font-size:12px">${l.label} ${counts[i]}人</span>
-    </div>`
-  ).join("");
-}
+// ── 自分だけ操作 ──
+window.__adj = (id,val) => {
+  if(id!==myMemberId)return;
+  val=parseInt(val);
+  if(!states[id])states[id]={};
+  states[id].adj=val;
+  update(ref(db,`states/${id}`),{adj:val});
+  const pct=calcPct(id);const lv=getLevel(pct);
+  const b=document.getElementById("bar-"+id);if(b){b.style.width=pct+"%";b.style.background=lv.bar;}
+  const p=document.getElementById("pct-"+id);if(p){p.textContent=pct+"%";p.style.color=lv.bar;}
+  const ch=document.getElementById("chip-"+id);if(ch){ch.style.background=lv.bbg;ch.style.color=lv.btx;ch.innerHTML=`<span class="chip-dot" style="background:${lv.dot};width:6px;height:6px;border-radius:50%"></span>${lv.label}`;}
+  const av=document.getElementById("av-"+id);if(av)av.textContent=val>0?'+'+val:val;
+  // 顔も更新
+  const card=document.getElementById("card-"+id);
+  if(card){
+    const fw=card.querySelector(".face-wrap");
+    if(fw){
+      const c=COLORS[(members.find(m=>m.id===id)||{colorIdx:0}).colorIdx%COLORS.length];
+      fw.querySelector(".face-svg")?.remove();
+      const tmp=document.createElement("div");tmp.innerHTML=faceSvg(pct,c.fg,c.bg);
+      fw.insertBefore(tmp.firstChild,fw.firstChild);
+      const steam=fw.querySelector(".steam");if(steam)steam.classList.toggle("show",pct>70);
+      const sweat=fw.querySelector(".sweat");if(sweat)sweat.classList.toggle("show",pct>45);
+    }
+  }
+  // サマリー更新
+  const counts=[0,0,0,0];members.forEach(m=>{const p=calcPct(m.id);if(p<=20)counts[0]++;else if(p<=45)counts[1]++;else if(p<=70)counts[2]++;else counts[3]++;});
+  const ld=[{label:"余裕あり",dot:"#3d7a4a",bg:"#eaf3ec",bd:"#b8dcc0"},{label:"ふつう",dot:"#d4aa00",bg:"#fef9e6",bd:"#e8d68a"},{label:"やや忙しい",dot:"#e07820",bg:"#fef0dc",bd:"#f0c090"},{label:"キツい！",dot:"#d04040",bg:"#fceaea",bd:"#f0b0b0"}];
+  document.getElementById("summaryPills").innerHTML=ld.map((l,i)=>`<div class="pill" style="background:${l.bg};border-color:${l.bd}"><span class="pill-dot" style="background:${l.dot}"></span><span style="color:${l.dot};font-size:12px">${l.label} ${counts[i]}人</span></div>`).join("");
+};
 
-function startEdit(id) {
-  if (!userState[id]) userState[id] = {};
-  userState[id].editing = true;
-  const area = document.querySelector(`#card-${id} .comment-area`);
-  if (area) area.innerHTML = `<textarea class="comment-inp" id="ci-${id}" rows="2">${userState[id].comment||""}</textarea><button class="save-sm" onclick="saveComment('${id}')">保存</button>`;
-  const inp = document.getElementById("ci-"+id);
-  if (inp) inp.focus();
-}
+window.__editCmt = (id) => {
+  if(id!==myMemberId)return;
+  const area=document.getElementById("cmt-area-"+id);if(!area)return;
+  const cur=(states[id]||{}).comment||"";
+  area.innerHTML=`<textarea class="comment-inp" id="ci-${id}" rows="2">${cur}</textarea><button class="save-sm" onclick="window.__saveCmt('${id}')">保存</button>`;
+  document.getElementById("ci-"+id)?.focus();
+};
 
-function saveComment(id) {
-  const ci = document.getElementById("ci-"+id);
-  if (!userState[id]) userState[id] = {};
-  userState[id].comment = ci ? ci.value.trim() : "";
-  userState[id].editing = false;
-  saveState();
-  const area = document.querySelector(`#card-${id} .comment-area`);
-  const c = userState[id].comment;
-  if (area) area.innerHTML = `<div class="comment-disp ${c?'':'empty'}" onclick="startEdit('${id}')">${c||'コメントを追加...'}</div>`;
-}
+window.__saveCmt = (id) => {
+  if(id!==myMemberId)return;
+  const ci=document.getElementById("ci-"+id);
+  const val=ci?ci.value.trim():"";
+  if(!states[id])states[id]={};
+  states[id].comment=val;
+  update(ref(db,`states/${id}`),{comment:val});
+  const area=document.getElementById("cmt-area-"+id);
+  if(area)area.innerHTML=`<div class="comment-disp${val?'':' empty'}" onclick="window.__editCmt('${id}')">${val||'コメントを追加...'}</div>`;
+};
 
-// ──────────────────────────────────────────
-// 管理ドロワー
-// ──────────────────────────────────────────
-let editingMembers = [];
-let selectedColor = {};
-
-function openDrawer() {
-  editingMembers = JSON.parse(JSON.stringify(members));
-  selectedColor = {};
-  editingMembers.forEach(m => { selectedColor[m.id] = m.colorIdx; });
+// ── 管理ドロワー ──
+window.openDrawer = () => {
+  editingMembers=JSON.parse(JSON.stringify(members));
   renderDrawer();
   document.getElementById("overlay").classList.add("open");
   document.getElementById("drawer").classList.add("open");
-}
-
-function closeDrawer() {
+};
+window.closeDrawer = () => {
   document.getElementById("overlay").classList.remove("open");
   document.getElementById("drawer").classList.remove("open");
-}
+};
 
 function renderDrawer() {
-  const body = document.getElementById("drawerBody");
-  body.innerHTML = `
+  document.getElementById("drawerBody").innerHTML=`
     <div class="section-label">登録メンバー（${editingMembers.length}人）</div>
-    <div style="font-size:11px;color:var(--subtle);margin-bottom:10px;">
-      ☰ をドラッグして順番を入れ替えられます
-    </div>
-    <div class="member-list" id="editList">
-      ${editingMembers.map(m => memberRowHtml(m)).join("")}
-    </div>
+    <div style="font-size:11px;color:var(--subtle);margin-bottom:10px">☰ をドラッグして順番を入れ替えられます</div>
+    <div class="member-list" id="editList">${editingMembers.map(memberRowHtml).join("")}</div>
     <div class="divider"></div>
     <div class="section-label">メンバーを追加</div>
     <div class="add-form">
       <div class="form-grid">
-        <div>
-          <div class="form-label">名前</div>
-          <input class="form-inp" id="newName" placeholder="例: 山田">
-        </div>
-        <div>
-          <div class="form-label">役割</div>
-          <input class="form-inp" id="newRole" placeholder="例: 制作">
-        </div>
+        <div><div class="form-label">名前</div><input class="form-inp" id="newName" placeholder="例: 山田"></div>
+        <div><div class="form-label">役割</div><input class="form-inp" id="newRole" placeholder="例: 制作"></div>
       </div>
-      <div style="margin-bottom:8px">
-        <div class="form-label">Google カレンダー</div>
-        <select class="form-inp" id="newCal" style="cursor:pointer">
-          ${CALENDAR_OPTIONS.map(o => `<option value="${o.id}">${o.label}</option>`).join("")}
-        </select>
+      <div><div class="form-label">カラー</div>
+        <div class="color-picker" id="newCP">${COLORS.map((c,i)=>`<div class="color-opt${i===0?' selected':''}" style="background:${c.fg}" onclick="window.__nc(${i})"></div>`).join("")}</div>
       </div>
-      <div>
-        <div class="form-label">カラー</div>
-        <div class="color-picker" id="newColorPicker">
-          ${COLORS.map((c,i) => `<div class="color-opt${i===0?' selected':''}" style="background:${c.fg}" data-idx="${i}" onclick="selectNewColor(${i})"></div>`).join("")}
-        </div>
-      </div>
-      <button class="btn btn-gold" style="margin-top:12px;width:100%" onclick="addMember()">+ 追加する</button>
-    </div>
-  `;
-}
-
-let newColorIdx = 0;
-function selectNewColor(idx) {
-  newColorIdx = idx;
-  document.querySelectorAll("#newColorPicker .color-opt").forEach((el,i) => {
-    el.classList.toggle("selected", i === idx);
-  });
+      <button class="btn btn-gold" style="margin-top:12px;width:100%" onclick="window.__addM()">+ 追加する</button>
+    </div>`;
 }
 
 function memberRowHtml(m) {
-  const c = COLORS[m.colorIdx % COLORS.length];
+  const c=COLORS[m.colorIdx%COLORS.length];
   return `<div class="member-row" id="mr-${m.id}" draggable="true"
-    ondragstart="dragStart(event,'${m.id}')"
-    ondragover="dragOver(event,'${m.id}')"
-    ondragleave="dragLeave(event,'${m.id}')"
-    ondrop="dragDrop(event,'${m.id}')"
-    ondragend="dragEnd()">
-    <div class="drag-handle" title="ドラッグして並び替え">
-      <span></span><span></span><span></span>
-    </div>
+    ondragstart="window.__ds(event,'${m.id}')" ondragover="window.__do(event,'${m.id}')"
+    ondragleave="window.__dl(event,'${m.id}')" ondrop="window.__dd(event,'${m.id}')" ondragend="window.__de()">
+    <div class="drag-handle"><span></span><span></span><span></span></div>
     <div class="m-avatar-sm" style="background:${c.bg};color:${c.fg}">${m.name.charAt(0)}</div>
-    <input class="m-inp" value="${m.name}" onchange="updateMField('${m.id}','name',this.value)" placeholder="名前">
-    <input class="m-inp" value="${m.role}" onchange="updateMField('${m.id}','role',this.value)" placeholder="役割">
-    <select class="m-sel" onchange="updateMField('${m.id}','cal',this.value)">
-      ${CALENDAR_OPTIONS.map(o => `<option value="${o.id}"${o.id===m.cal?' selected':''}>${o.label}</option>`).join("")}
-    </select>
-    <button class="btn btn-danger" style="font-size:11px;padding:4px 10px" onclick="removeMember('${m.id}')">削除</button>
+    <input class="m-inp" value="${m.name}" onchange="window.__umf('${m.id}','name',this.value)" placeholder="名前">
+    <input class="m-inp" value="${m.role}" onchange="window.__umf('${m.id}','role',this.value)" placeholder="役割">
+    <button class="btn btn-danger btn-sm" onclick="window.__rm('${m.id}')">削除</button>
   </div>`;
 }
 
-function updateMField(id, field, val) {
-  const m = editingMembers.find(x => x.id === id);
-  if (m) m[field] = val;
-}
-
-// ── ドラッグ＆ドロップ並び替え ──
-let dragSrcId = null;
-
-function dragStart(e, id) {
-  dragSrcId = id;
-  e.dataTransfer.effectAllowed = "move";
-  setTimeout(() => {
-    const el = document.getElementById("mr-"+id);
-    if (el) el.classList.add("dragging");
-  }, 0);
-}
-
-function dragOver(e, id) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "move";
-  if (id === dragSrcId) return;
-  document.querySelectorAll(".member-row").forEach(el => el.classList.remove("drag-over"));
-  const el = document.getElementById("mr-"+id);
-  if (el) el.classList.add("drag-over");
-}
-
-function dragLeave(e, id) {
-  const el = document.getElementById("mr-"+id);
-  if (el) el.classList.remove("drag-over");
-}
-
-function dragDrop(e, targetId) {
-  e.preventDefault();
-  if (!dragSrcId || dragSrcId === targetId) return;
-  const srcIdx = editingMembers.findIndex(x => x.id === dragSrcId);
-  const tgtIdx = editingMembers.findIndex(x => x.id === targetId);
-  if (srcIdx < 0 || tgtIdx < 0) return;
-  const [moved] = editingMembers.splice(srcIdx, 1);
-  editingMembers.splice(tgtIdx, 0, moved);
+window.__umf=(id,f,v)=>{const m=editingMembers.find(x=>x.id===id);if(m)m[f]=v;};
+window.__rm=(id)=>{editingMembers=editingMembers.filter(x=>x.id!==id);document.getElementById("mr-"+id)?.remove();document.querySelector(".section-label").textContent=`登録メンバー（${editingMembers.length}人）`;};
+window.__nc=(i)=>{newColorIdx=i;document.querySelectorAll("#newCP .color-opt").forEach((el,j)=>el.classList.toggle("selected",j===i));};
+window.__addM=()=>{
+  const name=document.getElementById("newName").value.trim();
+  const role=document.getElementById("newRole").value.trim();
+  if(!name){alert("名前を入力してください");return;}
+  const id="m_"+Date.now();
+  editingMembers.push({id,name,role:role||"スタッフ",colorIdx:newColorIdx});
   renderDrawer();
-}
+};
+window.__ds=(e,id)=>{dragSrcId=id;e.dataTransfer.effectAllowed="move";setTimeout(()=>document.getElementById("mr-"+id)?.classList.add("dragging"),0);};
+window.__do=(e,id)=>{e.preventDefault();if(id===dragSrcId)return;document.querySelectorAll(".member-row").forEach(el=>el.classList.remove("drag-over"));document.getElementById("mr-"+id)?.classList.add("drag-over");};
+window.__dl=(e,id)=>{document.getElementById("mr-"+id)?.classList.remove("drag-over");};
+window.__dd=(e,tid)=>{e.preventDefault();if(!dragSrcId||dragSrcId===tid)return;const si=editingMembers.findIndex(x=>x.id===dragSrcId),ti=editingMembers.findIndex(x=>x.id===tid);if(si<0||ti<0)return;const[moved]=editingMembers.splice(si,1);editingMembers.splice(ti,0,moved);renderDrawer();};
+window.__de=()=>{dragSrcId=null;document.querySelectorAll(".member-row").forEach(el=>{el.classList.remove("dragging");el.classList.remove("drag-over");});};
 
-function dragEnd() {
-  dragSrcId = null;
-  document.querySelectorAll(".member-row").forEach(el => {
-    el.classList.remove("dragging");
-    el.classList.remove("drag-over");
+window.saveMembers = async () => {
+  members=JSON.parse(JSON.stringify(editingMembers));
+  await set(ref(db,"members"),members);
+  closeDrawer();renderBoard();
+};
+
+window.copyUrl = () => {
+  navigator.clipboard.writeText(window.location.href).then(()=>{
+    const btn=event.target;btn.textContent="✓ コピーしました";
+    setTimeout(()=>btn.textContent="🔗 URLをコピー",2000);
   });
-}
+};
 
-function removeMember(id) {
-  editingMembers = editingMembers.filter(x => x.id !== id);
-  const el = document.getElementById("mr-"+id);
-  if (el) el.remove();
-  document.querySelector(".section-label").textContent = `登録メンバー（${editingMembers.length}人）`;
-}
+// ── 認証 ──
+window.signInWithGoogle = async () => {
+  try { await signInWithPopup(auth,new GoogleAuthProvider()); }
+  catch(e) { alert("ログインに失敗しました: "+e.message); }
+};
+window.doSignOut = async () => { await fbSignOut(auth); };
 
-function addMember() {
-  const name = document.getElementById("newName").value.trim();
-  const role = document.getElementById("newRole").value.trim();
-  const cal  = document.getElementById("newCal").value;
-  if (!name) { alert("名前を入力してください"); return; }
-  const id = "m_" + Date.now();
-  const newM = { id, name, role: role||"スタッフ", cal, colorIdx: newColorIdx };
-  editingMembers.push(newM);
-  if (!userState[id]) userState[id] = { adj:0, comment:"", editing:false };
-  document.getElementById("newName").value = "";
-  document.getElementById("newRole").value = "";
-  renderDrawer();
-}
+// ── 起動 ──
+onAuthStateChanged(auth, async (user) => {
+  document.getElementById("loadingScreen").style.display="none";
+  if (!user) {
+    document.getElementById("loginScreen").style.display="flex";
+    document.getElementById("mainApp").style.display="none";
+    return;
+  }
+  currentUser=user;
+  document.getElementById("loginScreen").style.display="none";
+  document.getElementById("mainApp").style.display="block";
 
-function saveMembers() {
-  members = JSON.parse(JSON.stringify(editingMembers));
-  members.forEach(m => {
-    if (!userState[m.id]) userState[m.id] = { adj:0, comment:"", editing:false };
+  const av=document.getElementById("userAvatar");
+  if(user.photoURL)av.innerHTML=`<img src="${user.photoURL}">`;
+  else av.textContent=(user.displayName||user.email||"?").charAt(0).toUpperCase();
+  document.getElementById("userName").textContent=user.displayName||user.email;
+
+  if(ADMIN_EMAILS.includes(user.email))document.getElementById("adminBtn").style.display="inline-flex";
+
+  myMemberId=EMAIL_TO_MEMBER[user.email]||null;
+
+  // メンバーリスト取得
+  const ms=await get(ref(db,"members"));
+  if(ms.exists())members=ms.val();
+  else{members=JSON.parse(JSON.stringify(DEFAULT_MEMBERS));await set(ref(db,"members"),members);}
+
+  if(!myMemberId){
+    const en=(user.email||"").split("@")[0].toLowerCase();
+    myMemberId=members.find(m=>m.id===en||m.name.toLowerCase().includes(en))?.id||null;
+  }
+
+  // カレンダーデータ取得
+  await fetchCalendarData();
+
+  // リアルタイム同期
+  onValue(ref(db,"states"),(snap)=>{states=snap.val()||{};renderBoard();});
+  onValue(ref(db,"members"),(snap)=>{if(snap.exists()){members=snap.val();renderBoard();}});
+  onValue(ref(db,"calData"),(snap)=>{
+    if(snap.exists()){
+      const saved=snap.val();
+      const today=new Date().toISOString().slice(0,10);
+      if(saved.date===today){
+        calData=saved.events||{};
+        updateCalBadge(saved.updatedAt);
+        renderBoard();
+      }
+    }
   });
-  saveState();
-  closeDrawer();
-  renderBoard();
-}
-
-// ──────────────────────────────────────────
-// ユーティリティ
-// ──────────────────────────────────────────
-function copyUrl() {
-  navigator.clipboard.writeText(window.location.href)
-    .then(() => {
-      const btn = event.target;
-      btn.textContent = "✓ コピーしました";
-      setTimeout(() => btn.textContent = "🔗 URLをコピー", 2000);
-    }).catch(() => alert("URLをコピーしてください: " + window.location.href));
-}
-
-function downloadHtml() {
-  const html = document.documentElement.outerHTML;
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "triumph_team_board.html";
-  a.click();
-}
-
-// ──────────────────────────────────────────
-// 起動
-// ──────────────────────────────────────────
-loadState();
-renderBoard();
-
-// バッジに今の時刻表示
-const now = new Date();
-document.getElementById("syncBadge").textContent =
-  `● ${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 同期済み`;
+});
 </script>
-
-
-</body></html>
+</body>
+</html>
