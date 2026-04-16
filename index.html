@@ -19,15 +19,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-#loginScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh}
-.login-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2.5rem 2rem;text-align:center;max-width:340px;width:100%}
-.login-logo{font-size:22px;font-weight:600;letter-spacing:.08em;margin-bottom:8px}
-.login-logo span{color:var(--gold)}
-.login-sub{font-size:13px;color:var(--subtle);margin-bottom:2rem}
-.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:11px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:500;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .15s}
-.google-btn:hover{background:var(--bg);border-color:var(--gold)}
-
-#mainApp{display:none}
+#mainApp{display:block}
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
 .logo{font-size:18px;font-weight:600;letter-spacing:.08em}
 .logo span{color:var(--gold)}
@@ -154,26 +146,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </head>
 <body>
 
-<div id="loadingScreen">
-  <div class="spinner"></div>
-  <div style="font-size:13px;color:var(--subtle)">読み込み中...</div>
-</div>
-
-<div id="loginScreen">
-  <div class="login-card">
-    <div class="login-logo">TRIUMPH <span>Team Board</span></div>
-    <div class="login-sub">Googleアカウントでログインしてください</div>
-    <button class="google-btn" onclick="signInWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Googleでログイン
-    </button>
-  </div>
-</div>
+<div id="loadingScreen" style="display:none"></div>
 
 <div id="mainApp">
   <header class="header">
@@ -181,12 +154,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="header-right">
       <div class="sync-badge"><span class="sync-dot"></span>リアルタイム同期中</div>
       <div class="cal-badge" id="calBadge">Cal: 読込中</div>
-      <div class="user-chip">
-        <div class="user-avatar" id="userAvatar"></div>
-        <span id="userName" style="font-size:12px"></span>
-      </div>
-      <button class="btn btn-sm" id="adminBtn" style="display:none" onclick="openDrawer()">⚙ メンバー管理</button>
-      <button class="btn btn-sm" onclick="doSignOut()">ログアウト</button>
+      <button class="btn btn-sm" onclick="openDrawer()">⚙ メンバー管理</button>
     </div>
   </header>
   <div class="content">
@@ -217,8 +185,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut as fbSignOut, onAuthStateChanged }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getDatabase, ref, set, get, update, onValue }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
@@ -233,11 +199,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getDatabase(app);
 
 // ── 定数 ──
-const ADMIN_EMAILS = ["33q33q33q@gmail.com","sawaguchi@e-production.jp"];
 const WORK_MINS = 480;
 
 const COLORS = [
@@ -286,11 +250,9 @@ const EMAIL_TO_MEMBER = {
 };
 
 // ── State ──
-let currentUser = null;
-let myMemberId = null;
 let members = [];
 let states = {};
-let calData = {};   // {memberId: [{time,name,mins}]}
+let calData = {};
 let editingMembers = [];
 let newColorIdx = 0;
 let dragSrcId = null;
@@ -437,7 +399,6 @@ function renderBoard() {
 }
 
 function cardHtml(m) {
-  const isMe = m.id===myMemberId;
   const pct = calcPct(m.id);
   const lv = getLevel(pct);
   const c = COLORS[m.colorIdx%COLORS.length];
@@ -452,30 +413,27 @@ function cardHtml(m) {
     ? evs.map(e=>`<div class="ev-row"><span class="ev-time">${e.time}</span><span class="ev-title">${e.name}</span></div>`).join("")
     : `<div class="no-ev">本日の予定なし</div>`;
 
-  const bottomHtml = isMe
-    ? `<div class="edit-controls">
-        <div class="adj-row">
-          <span class="adj-label">本人調整</span>
-          <input type="range" min="-30" max="100" step="5" value="${adj}" oninput="window.__adj('${m.id}',this.value)">
-          <span class="adj-val" id="av-${m.id}">${adj>0?'+'+adj:adj}</span>
-        </div>
-        <div id="cmt-area-${m.id}">
-          <div class="comment-disp${comment?'':' empty'}" onclick="window.__editCmt('${m.id}')">${comment||'コメントを追加...'}</div>
-        </div>
-      </div>`
-    : `<div class="readonly-block">${comment?`<div class="comment-readonly">"${comment}"</div>`:''}</div>`;
+  const bottomHtml = `<div class="edit-controls">
+      <div class="adj-row">
+        <span class="adj-label">調整</span>
+        <input type="range" min="-30" max="100" step="5" value="${adj}" oninput="window.__adj('${m.id}',this.value)">
+        <span class="adj-val" id="av-${m.id}">${adj>0?'+'+adj:adj}</span>
+      </div>
+      <div id="cmt-area-${m.id}">
+        <div class="comment-disp${comment?'':' empty'}" onclick="window.__editCmt('${m.id}')">${comment||'コメントを追加...'}</div>
+      </div>
+    </div>`;
 
-  return `<div class="card${isMe?' is-mine':''}" id="card-${m.id}">
+  return `<div class="card" id="card-${m.id}">
     <div class="card-top">
       <div class="face-wrap">
-        ${isMe?'<div class="mine-ring"></div>':''}
         ${faceSvg(pct, c.fg, c.bg)}
         <div class="steam${showSteam?' show':''}">
           <div class="steam-line"></div><div class="steam-line"></div><div class="steam-line"></div>
         </div>
         ${showSweat?'<div class="sweat show">💧</div>':''}
       </div>
-      <div class="card-name">${m.name}${isMe?'<span class="mine-badge">自分</span>':''}</div>
+      <div class="card-name">${m.name}</div>
       <div class="card-role">${m.role}</div>
     </div>
     <div class="meter-head"><span class="meter-label">詰まり具合</span><span class="meter-pct" id="pct-${m.id}" style="color:${lv.bar}">${pct}%</span></div>
@@ -486,9 +444,8 @@ function cardHtml(m) {
   </div>`;
 }
 
-// ── 自分だけ操作 ──
+// ── 全員操作可能 ──
 window.__adj = (id,val) => {
-  if(id!==myMemberId)return;
   val=parseInt(val);
   if(!states[id])states[id]={};
   states[id].adj=val;
@@ -518,7 +475,6 @@ window.__adj = (id,val) => {
 };
 
 window.__editCmt = (id) => {
-  if(id!==myMemberId)return;
   const area=document.getElementById("cmt-area-"+id);if(!area)return;
   const cur=(states[id]||{}).comment||"";
   area.innerHTML=`<textarea class="comment-inp" id="ci-${id}" rows="2">${cur}</textarea><button class="save-sm" onclick="window.__saveCmt('${id}')">保存</button>`;
@@ -526,7 +482,6 @@ window.__editCmt = (id) => {
 };
 
 window.__saveCmt = (id) => {
-  if(id!==myMemberId)return;
   const ci=document.getElementById("ci-"+id);
   const val=ci?ci.value.trim():"";
   if(!states[id])states[id]={};
@@ -610,43 +565,12 @@ window.copyUrl = () => {
   });
 };
 
-// ── 認証 ──
-window.signInWithGoogle = async () => {
-  try { await signInWithPopup(auth,new GoogleAuthProvider()); }
-  catch(e) { alert("ログインに失敗しました: "+e.message); }
-};
-window.doSignOut = async () => { await fbSignOut(auth); };
-
-// ── 起動 ──
-onAuthStateChanged(auth, async (user) => {
-  document.getElementById("loadingScreen").style.display="none";
-  if (!user) {
-    document.getElementById("loginScreen").style.display="flex";
-    document.getElementById("mainApp").style.display="none";
-    return;
-  }
-  currentUser=user;
-  document.getElementById("loginScreen").style.display="none";
-  document.getElementById("mainApp").style.display="block";
-
-  const av=document.getElementById("userAvatar");
-  if(user.photoURL)av.innerHTML=`<img src="${user.photoURL}">`;
-  else av.textContent=(user.displayName||user.email||"?").charAt(0).toUpperCase();
-  document.getElementById("userName").textContent=user.displayName||user.email;
-
-  if(ADMIN_EMAILS.includes(user.email))document.getElementById("adminBtn").style.display="inline-flex";
-
-  myMemberId=EMAIL_TO_MEMBER[user.email]||null;
-
+// ── 起動（ログイン不要・完全オープン） ──
+async function init() {
   // メンバーリスト取得
-  const ms=await get(ref(db,"members"));
-  if(ms.exists())members=ms.val();
-  else{members=JSON.parse(JSON.stringify(DEFAULT_MEMBERS));await set(ref(db,"members"),members);}
-
-  if(!myMemberId){
-    const en=(user.email||"").split("@")[0].toLowerCase();
-    myMemberId=members.find(m=>m.id===en||m.name.toLowerCase().includes(en))?.id||null;
-  }
+  const ms = await get(ref(db,"members"));
+  if(ms.exists()) members=ms.val();
+  else { members=JSON.parse(JSON.stringify(DEFAULT_MEMBERS)); await set(ref(db,"members"),members); }
 
   // カレンダーデータ取得
   await fetchCalendarData();
@@ -657,15 +581,14 @@ onAuthStateChanged(auth, async (user) => {
   onValue(ref(db,"calData"),(snap)=>{
     if(snap.exists()){
       const saved=snap.val();
-      const today=new Date().toISOString().slice(0,10);
-      if(saved.date===today){
-        calData=saved.events||{};
-        updateCalBadge(saved.updatedAt);
-        renderBoard();
-      }
+      calData=saved;
+      updateCalBadge(saved.updatedAt);
+      renderBoard();
     }
   });
-});
+}
+
+init();
 </script>
 </body>
 </html>
