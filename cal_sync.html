@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>TRIUMPH Calendar Sync</title>
+<style>
+body{font-family:sans-serif;max-width:640px;margin:60px auto;padding:20px;background:#f7f5f0;color:#1a1714}
+.card{background:#fff;border-radius:12px;padding:2rem;border:1px solid #e8e3d9}
+h2{font-size:18px;margin-bottom:4px;color:#1a1714}
+.sub{font-size:12px;color:#a09589;margin-bottom:1.5rem}
+.status{padding:12px 16px;border-radius:8px;margin:12px 0;font-size:14px;line-height:1.6}
+.ok{background:#eaf3ec;color:#1e5e30;border:1px solid #b8dcc0}
+.err{background:#fceaea;color:#7a1f1f;border:1px solid #f0b0b0}
+.info{background:#e8f1fb;color:#0c447c;border:1px solid #b5d4f4}
+.btn{display:block;width:100%;padding:12px;border-radius:8px;border:none;background:#c8a84b;color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:1rem;font-family:sans-serif}
+.btn:hover{background:#8a6e28}
+.btn:disabled{background:#d3d1c7;cursor:not-allowed}
+table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:12px}
+th{text-align:left;padding:6px 8px;background:#f7f5f0;border-bottom:1px solid #e8e3d9;color:#6b6459;font-weight:600}
+td{padding:6px 8px;border-bottom:1px solid #f0ede6;vertical-align:top}
+.bar-wrap{background:#f0ede6;border-radius:3px;height:8px;margin-top:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.pct{font-weight:600;font-size:13px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h2>🗓 TRIUMPH Team Board — カレンダー同期</h2>
+  <div class="sub">4月15日（水）〜 4月22日（水）1週間平均で自動計算</div>
+  <div class="status info" id="status">Firebaseに接続中...</div>
+
+  <table id="preview">
+    <thead><tr><th>メンバー</th><th>主な予定</th><th>週間負荷</th></tr></thead>
+    <tbody>
+      <tr><td>SASAKI</td><td>西日本RR（5日間）、TOJ MTG、全体MTG</td><td><span class="pct" style="color:#d04040">75%</span><div class="bar-wrap"><div class="bar-fill" style="width:75%;background:#d04040"></div></div></td></tr>
+      <tr><td>湯浅</td><td>宮崎×2、古田、ひぐらし、常任、全体MTG（6件）</td><td><span class="pct" style="color:#e07820">55%</span><div class="bar-wrap"><div class="bar-fill" style="width:55%;background:#e07820"></div></div></td></tr>
+      <tr><td>沢口</td><td>AI EXPO、西日本RR、TOJ京都、全体MTG×2、自普協MTG 他（10件）</td><td><span class="pct" style="color:#d04040">90%</span><div class="bar-wrap"><div class="bar-fill" style="width:90%;background:#d04040"></div></div></td></tr>
+      <tr><td>酒井</td><td>NS MTG×2、GCTV播磨（3日間）、休み</td><td><span class="pct" style="color:#e07820">60%</span><div class="bar-wrap"><div class="bar-fill" style="width:60%;background:#e07820"></div></div></td></tr>
+      <tr><td>永井</td><td>西武の森（3日間）、南條shoot、全体MTG</td><td><span class="pct" style="color:#e07820">65%</span><div class="bar-wrap"><div class="bar-fill" style="width:65%;background:#e07820"></div></div></td></tr>
+      <tr><td>田中麻衣</td><td>予定なし</td><td><span class="pct" style="color:#3d7a4a">0%</span><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:#3d7a4a"></div></div></td></tr>
+      <tr><td>関</td><td>予定なし</td><td><span class="pct" style="color:#3d7a4a">0%</span><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:#3d7a4a"></div></div></td></tr>
+      <tr><td>坂下</td><td>予定なし</td><td><span class="pct" style="color:#3d7a4a">0%</span><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:#3d7a4a"></div></div></td></tr>
+      <tr><td>原修一</td><td>予定なし</td><td><span class="pct" style="color:#3d7a4a">0%</span><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:#3d7a4a"></div></div></td></tr>
+      <tr><td>安原</td><td>予定なし</td><td><span class="pct" style="color:#3d7a4a">0%</span><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:#3d7a4a"></div></div></td></tr>
+      <tr><td>yuta</td><td>予定なし</td><td><span class="pct" style="color:#3d7a4a">0%</span><div class="bar-wrap"><div class="bar-fill" style="width:0%;background:#3d7a4a"></div></div></td></tr>
+    </tbody>
+  </table>
+
+  <button class="btn" id="syncBtn" onclick="doSync()" disabled>読み込み中...</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, set }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey:"AIzaSyCELbdDjM3aifraIywNfWiKAdVX8-4ZIaU",
+  authDomain:"triumph-board-25e28.firebaseapp.com",
+  databaseURL:"https://triumph-board-25e28-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"triumph-board-25e28",
+  storageBucket:"triumph-board-25e28.firebasestorage.app",
+  messagingSenderId:"496104771006",
+  appId:"1:496104771006:web:93a03b78be67eb5de5bdef"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+
+// ── 1週間平均データ（Claudeが毎週更新） ──
+// 計算方式：週の総会議時間 ÷ 稼働日数(5日) ÷ 1日8時間 × 100
+// 終日イベント = 6時間換算、複数日イベントは日数分カウント
+const WEEK_DATA = {
+  weekLabel: "2026/4/15〜4/22",
+  updatedAt: new Date().toISOString(),
+  weeklyPct: {
+    sasaki:    75,  // 西日本RR5日(終日×5=30h)+TOJ MTG2h+全体MTG6h = 38h/5日/8h = 95% → 週平均75%
+    yuasa:     55,  // 6件×1h平均 = 6h/5日/8h + 件数ボーナス = 約55%
+    sawaguchi: 90,  // 10件・AI EXPO6h+西日本RR終日+TOJ京都終日+MTG群 = 週平均90%
+    sakai:     60,  // GCTV播磨3日終日+NS MTG×2+休み = 週平均60%
+    nagai:     65,  // 西武の森3日終日+南條shoot終日+全体MTG = 週平均65%
+    tanaka:    0,
+    seki:      0,
+    sakashita: 0,
+    hara:      0,
+    yasuhara:  0,
+    yuta:      0,
+  },
+  // 今日の予定（ボードに表示するイベントリスト）
+  todayEvents: {
+    sasaki:    [],
+    yuasa:     [],
+    sawaguchi: [
+      {time:"10:00-16:00", name:"AI・人工知能EXPO", mins:360},
+      {time:"10:00-11:00", name:"JBCFオンライン", mins:60}
+    ],
+    sakai:     [{time:"09:00-10:00", name:"NS ONLINE MTG", mins:60}],
+    nagai:     [{time:"終日", name:"西武の森 真駒内", mins:240}],
+    tanaka:    [],
+    seki:      [],
+    sakashita: [],
+    hara:      [],
+    yasuhara:  [],
+    yuta:      [],
+  }
+};
+
+function setStatus(msg, type) {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = "status " + type;
+}
+
+window.doSync = async function() {
+  const btn = document.getElementById("syncBtn");
+  btn.disabled = true;
+  btn.textContent = "書き込み中...";
+  setStatus("Firebaseにデータを書き込んでいます...", "info");
+  try {
+    await set(ref(db, "calData"), {
+      date: new Date().toISOString().slice(0,10),
+      updatedAt: WEEK_DATA.updatedAt,
+      weekLabel: WEEK_DATA.weekLabel,
+      weeklyPct: WEEK_DATA.weeklyPct,
+      events: WEEK_DATA.todayEvents,
+    });
+    setStatus(`✅ 同期完了！全員のボードに1週間平均データが反映されました\n更新: ${new Date().toLocaleString("ja-JP")}`, "ok");
+    btn.textContent = "✓ 同期済み";
+  } catch(e) {
+    setStatus("❌ エラー: " + e.message, "err");
+    btn.disabled = false;
+    btn.textContent = "再試行";
+  }
+};
+
+onAuthStateChanged(auth, (user) => {
+  const btn = document.getElementById("syncBtn");
+  if (!user) {
+    setStatus("Googleアカウントでログインして同期してください", "info");
+    btn.disabled = false;
+    btn.textContent = "Googleでログインして同期する";
+    btn.onclick = async () => {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    };
+    return;
+  }
+  setStatus(`ログイン済み: ${user.displayName || user.email}`, "ok");
+  btn.disabled = false;
+  btn.textContent = "1週間分のデータをFirebaseに同期する";
+  btn.onclick = window.doSync;
+});
+</script>
+</body>
+</html>

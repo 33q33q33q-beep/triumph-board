@@ -323,7 +323,8 @@ function updateCalBadge(ts) {
   if (ts) {
     const d = new Date(ts);
     const hm = `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
-    badge.textContent = `Cal: ${hm}更新`;
+    const wl = calData.weekLabel || "";
+    badge.textContent = `Cal: ${wl} ${hm}更新`;
     badge.style.background = "#eaf3ec";
     badge.style.color = "#1e5e30";
     badge.style.borderColor = "#b8dcc0";
@@ -332,14 +333,17 @@ function updateCalBadge(ts) {
   }
 }
 
-// ── 計算 ──
+// ── 計算（週間平均 + 本人調整） ──
 const calcPct = (id) => {
-  const evs = calData[id] || [];
-  const mins = evs.reduce((s,e)=>s+(e.mins||0),0);
-  const calBase = Math.min(Math.round((mins/WORK_MINS)*100),100);
-  const bonus = Math.min(evs.length*5,20);
+  // 週間平均がFirebaseにある場合はそれを使う
+  const weeklyPct = calData.weeklyPct ? (calData.weeklyPct[id] || 0) : (() => {
+    const evs = (calData.events || calData)[id] || [];
+    const mins = evs.reduce((s,e)=>s+(e.mins||0),0);
+    const calBase = Math.min(Math.round((mins/WORK_MINS)*100),100);
+    return Math.min(calBase + Math.min(evs.length*5,20), 100);
+  })();
   const adj = (states[id]||{}).adj||0;
-  return Math.max(0,Math.min(100,calBase+bonus+adj));
+  return Math.max(0,Math.min(100,weeklyPct+adj));
 };
 
 const getLevel = (pct) => {
@@ -440,7 +444,7 @@ function cardHtml(m) {
   const us = states[m.id]||{};
   const adj = us.adj||0;
   const comment = us.comment||"";
-  const evs = calData[m.id]||[];
+  const evs = (calData.events || calData)[m.id]||[];
   const showSteam = pct > 70;
   const showSweat = pct > 45;
 
