@@ -256,6 +256,7 @@ let calData = {};
 let editingMembers = [];
 let newColorIdx = 0;
 let dragSrcId = null;
+let editingCommentId = null; // コメント編集中のメンバーID
 
 // ── カレンダー自動更新 ──
 // Firebase経由でカレンダーデータを保存・共有
@@ -396,6 +397,16 @@ function renderBoard() {
   ];
   document.getElementById("summaryPills").innerHTML=ld.map((l,i)=>`<div class="pill" style="background:${l.bg};border-color:${l.bd}"><span class="pill-dot" style="background:${l.dot}"></span><span style="color:${l.dot};font-size:12px">${l.label} ${counts[i]}人</span></div>`).join("");
   document.getElementById("grid").innerHTML=members.map(cardHtml).join("");
+  // コメント編集中のカードは入力中テキストを復元
+  if (editingCommentId) {
+    const area = document.getElementById("cmt-area-"+editingCommentId);
+    if (area) {
+      const cur = (states[editingCommentId]||{}).comment||"";
+      area.innerHTML=`<textarea class="comment-inp" id="ci-${editingCommentId}" rows="2">${cur}</textarea><button class="save-sm" onclick="window.__saveCmt('${editingCommentId}')">保存</button>`;
+      const inp = document.getElementById("ci-"+editingCommentId);
+      if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+    }
+  }
 }
 
 function cardHtml(m) {
@@ -475,13 +486,16 @@ window.__adj = (id,val) => {
 };
 
 window.__editCmt = (id) => {
+  editingCommentId = id;
   const area=document.getElementById("cmt-area-"+id);if(!area)return;
   const cur=(states[id]||{}).comment||"";
   area.innerHTML=`<textarea class="comment-inp" id="ci-${id}" rows="2">${cur}</textarea><button class="save-sm" onclick="window.__saveCmt('${id}')">保存</button>`;
-  document.getElementById("ci-"+id)?.focus();
+  const inp = document.getElementById("ci-"+id);
+  if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
 };
 
 window.__saveCmt = (id) => {
+  editingCommentId = null;
   const ci=document.getElementById("ci-"+id);
   const val=ci?ci.value.trim():"";
   if(!states[id])states[id]={};
